@@ -1,18 +1,39 @@
 package com.bruno.taskflow_api.tasklist;
 
+import com.bruno.taskflow_api.task.Task;
 import com.bruno.taskflow_api.workspace.Workspace;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class TaskList {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
   private String name;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "workspace_id", nullable = false)
   private Workspace workspace;
 
+  @OneToMany(mappedBy = "taskList", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Task> tasks = new ArrayList<>();
+
   private int position;
+
+  protected TaskList() {
+  }
 
   public TaskList(UUID id, String name, Workspace workspace, int position) {
     this.id = id;
@@ -55,8 +76,12 @@ public class TaskList {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof TaskList taskList)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof TaskList taskList)) {
+      return false;
+    }
     return Objects.equals(id, taskList.id);
   }
 
@@ -67,7 +92,6 @@ public class TaskList {
 
   @Override
   public String toString() {
-    return "TaskList{id=%s, name=%s, workspace=%s, position=%d}".formatted(id, name, workspace,
-        position);
+    return "TaskList{id=%s, name=%s, position=%d}".formatted(id, name, position);
   }
 }

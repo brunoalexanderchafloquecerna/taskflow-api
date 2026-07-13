@@ -1,17 +1,40 @@
 package com.bruno.taskflow_api.user;
 
+import com.bruno.taskflow_api.workspace.Workspace;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@Entity
+@Table(name = "users")
 public class User {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @Column(nullable = false, unique = true)
   private String email;
 
   private String name;
 
   private String password;
+
+  @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Workspace> workspaces = new ArrayList<>();
+
+  protected User() {
+  }
 
   public User(UUID id, String email, String name, String password) {
     this.id = id;
