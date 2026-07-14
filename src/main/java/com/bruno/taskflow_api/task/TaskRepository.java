@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TaskRepository extends JpaRepository<Task, UUID> {
 
-  List<Task> findByStatus(TaskStatusEnum status);
+  List<Task> findByStatus(TaskStatus status);
 
   List<Task> findByTaskListId(UUID taskListId);
 
-  List<Task> findByStatusAndTaskListId(TaskStatusEnum status, UUID taskListId);
+  List<Task> findByStatusAndTaskListId(TaskStatus status, UUID taskListId);
 
-  long countByStatus(TaskStatusEnum status);
+  long countByStatus(TaskStatus status);
 }
