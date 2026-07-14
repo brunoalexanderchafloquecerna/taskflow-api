@@ -28,7 +28,7 @@ public class Task {
   private String description;
 
   @Enumerated(EnumType.STRING)
-  private TaskStatusEnum status;
+  private TaskStatus status;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "task_list_id", nullable = false)
@@ -41,7 +41,7 @@ public class Task {
   protected Task() {
   }
 
-  public Task(UUID id, String title, String description, TaskStatusEnum status, TaskList taskList,
+  public Task(UUID id, String title, String description, TaskStatus status, TaskList taskList,
       LocalDateTime createdAt, LocalDateTime updatedAt) {
     this.id = id;
     this.title = title;
@@ -76,11 +76,11 @@ public class Task {
     this.description = description;
   }
 
-  public TaskStatusEnum getStatus() {
+  public TaskStatus getStatus() {
     return status;
   }
 
-  public void setStatus(TaskStatusEnum status) {
+  public void setStatus(TaskStatus status) {
     this.status = status;
   }
 

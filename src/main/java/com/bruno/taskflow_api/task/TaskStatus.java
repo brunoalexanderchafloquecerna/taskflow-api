@@ -1,5 +1,5 @@
 package com.bruno.taskflow_api.task;
 
-public enum TaskStatusEnum {
+public enum TaskStatus {
   TODO, IN_PROGRESS, CANCELED, DONE
 }
