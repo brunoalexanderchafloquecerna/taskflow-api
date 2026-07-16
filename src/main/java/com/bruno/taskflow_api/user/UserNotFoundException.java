@@ -1,6 +1,6 @@
 package com.bruno.taskflow_api.user;
 
-import com.bruno.taskflow_api.NotFoundException;
+import com.bruno.taskflow_api.shared.domain.exception.NotFoundException;
 import java.util.UUID;
 
 public class UserNotFoundException extends NotFoundException {
