@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface WorkspaceRepository extends JpaRepository<Workspace, UUID> {
 
-  @Query("SELECT w FROM Workspace w LEFT JOIN FETCH w.taskLists WHERE w.id = :id")
-  Optional<Workspace> findByIdWithTaskLists(@Param("id") UUID id);
+/*  @Query("SELECT w FROM Workspace w LEFT JOIN FETCH w.taskLists WHERE w.id = :id")
+  Optional<Workspace> findByIdWithTaskLists(@Param("id") UUID id);*/
 }
