@@ -1,4 +1,4 @@
-package com.bruno.taskflow_api.user.dto.response;
+package com.bruno.taskflow_api.user.infrastructure.adapter.in.web.dto.response;
 
 import java.util.UUID;
 

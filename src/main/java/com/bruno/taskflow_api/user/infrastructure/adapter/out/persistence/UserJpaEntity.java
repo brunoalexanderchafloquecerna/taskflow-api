@@ -1,4 +1,4 @@
-package com.bruno.taskflow_api.workspace;
+package com.bruno.taskflow_api.user.infrastructure.adapter.out.persistence;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,24 +13,27 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "workspaces")
-public class Workspace {
+@Table(name = "users")
+public class UserJpaEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  @Column(nullable = false, unique = true)
+  private String email;
+
   private String name;
 
-  @Column(name = "user_id", nullable = false)
-  private UUID userId;
+  private String password;
 
-  protected Workspace() {
+  protected UserJpaEntity() {
   }
 
-  public Workspace(UUID id, String name, UUID userId) {
+  public UserJpaEntity(UUID id, String email, String name, String password) {
     this.id = id;
+    this.email = email;
     this.name = name;
-    this.userId = userId;
+    this.password = password;
   }
 }
