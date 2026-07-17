@@ -1,6 +1,6 @@
 package com.bruno.taskflow_api.tasklist.application.service;
 
-import com.bruno.taskflow_api.tasklist.TaskListNotFoundException;
+import com.bruno.taskflow_api.tasklist.application.exception.TaskListNotFoundException;
 import com.bruno.taskflow_api.tasklist.application.port.in.TaskListUseCase;
 import com.bruno.taskflow_api.tasklist.application.port.out.TaskListRepository;
 import com.bruno.taskflow_api.tasklist.domain.model.TaskList;

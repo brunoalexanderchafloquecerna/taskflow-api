@@ -4,6 +4,7 @@ import com.bruno.taskflow_api.user.application.exception.UserNotFoundException;
 import com.bruno.taskflow_api.user.application.port.in.UserUseCase;
 import com.bruno.taskflow_api.user.application.port.out.UserRepository;
 import com.bruno.taskflow_api.user.domain.exception.InvalidUserException;
+import com.bruno.taskflow_api.user.domain.model.Role;
 import com.bruno.taskflow_api.user.domain.model.User;
 import java.util.List;
 import java.util.UUID;
@@ -20,18 +21,16 @@ public class UserService implements UserUseCase {
   }
 
   @Override
-  @Transactional
-  public User createUser(String email, String name, String password) {
-    if (userRepository.existsByEmail(email)) {
-      throw new InvalidUserException("User with email " + email + " already exists");
-    }
-    return userRepository.save(User.create(email, name, password));
+  @Transactional(readOnly = true)
+  public User getUserById(UUID id) {
+    return userRepository.findById(id).orElseThrow(
+        () -> new UserNotFoundException("User with id %s was not found.".formatted(id)));
   }
 
   @Override
-  @Transactional(readOnly = true)
-  public User getUserById(UUID id) {
-    return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+  public User getUserByEmail(String email) {
+    return userRepository.findByEmail(email).orElseThrow(
+        () -> new UserNotFoundException("User with email %s was not found.".formatted(email)));
   }
 
   @Override
@@ -42,13 +41,14 @@ public class UserService implements UserUseCase {
 
   @Override
   @Transactional
-  public User updateUser(UUID id, String email, String name, String oldPassword,
+  public User updateUser(UUID id, String name, Role role, String email, String oldPassword,
       String newPassword) {
-    User userFound = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    User userFound = userRepository.findById(id).orElseThrow(
+        () -> new UserNotFoundException("User with id %s was not found.".formatted(id)));
     if (!userFound.getPassword().equals(oldPassword)) {
       throw new InvalidUserException("Invalid old password");
     }
-    userFound.updateInformation(email, name, newPassword);
+    userFound.updateInformation(name, role, email, newPassword);
     return userRepository.save(userFound);
   }
 

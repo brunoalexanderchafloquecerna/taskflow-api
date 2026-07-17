@@ -5,7 +5,9 @@ import com.bruno.taskflow_api.user.domain.model.User;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class JpaUserRepositoryAdapter implements UserRepository {
 
   private final SpringDataUserRepository springDataUserRepository;
@@ -23,6 +25,11 @@ public class JpaUserRepositoryAdapter implements UserRepository {
   @Override
   public Optional<User> findById(UUID id) {
     return springDataUserRepository.findById(id).map(this::toDomain);
+  }
+
+  @Override
+  public Optional<User> findByEmail(String email) {
+    return springDataUserRepository.findByEmail(email).map(this::toDomain);
   }
 
   @Override
@@ -46,11 +53,12 @@ public class JpaUserRepositoryAdapter implements UserRepository {
   }
 
   private User toDomain(UserJpaEntity userJpaEntity) {
-    return new User(userJpaEntity.getId(), userJpaEntity.getName(), userJpaEntity.getEmail(),
-        userJpaEntity.getPassword());
+    return new User(userJpaEntity.getId(), userJpaEntity.getName(), userJpaEntity.getRole(),
+        userJpaEntity.getEmail(), userJpaEntity.getPassword());
   }
 
   private UserJpaEntity toEntity(User user) {
-    return new UserJpaEntity(user.getId(), user.getName(), user.getEmail(), user.getPassword());
+    return new UserJpaEntity(user.getId(), user.getName(), user.getRole(), user.getEmail(),
+        user.getPassword());
   }
 }

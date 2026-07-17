@@ -1,7 +1,10 @@
 package com.bruno.taskflow_api.user.infrastructure.adapter.out.persistence;
 
+import com.bruno.taskflow_api.user.domain.model.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -20,20 +23,24 @@ public class UserJpaEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
+  private String name;
+
+  @Enumerated(EnumType.STRING)
+  private Role role;
+
   @Column(nullable = false, unique = true)
   private String email;
-
-  private String name;
 
   private String password;
 
   protected UserJpaEntity() {
   }
 
-  public UserJpaEntity(UUID id, String email, String name, String password) {
+  public UserJpaEntity(UUID id, String name, Role role, String email, String password) {
     this.id = id;
-    this.email = email;
     this.name = name;
+    this.role = role;
+    this.email = email;
     this.password = password;
   }
 }
