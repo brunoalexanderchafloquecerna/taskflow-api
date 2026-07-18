@@ -1,6 +1,7 @@
 package com.bruno.taskflow_api.workspace.application.service;
 
 import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
+import com.bruno.taskflow_api.shared.application.utils.ValidationUtils;
 import com.bruno.taskflow_api.workspace.application.exception.UserNotFoundException;
 import com.bruno.taskflow_api.workspace.application.exception.WorkspaceNotFoundException;
 import com.bruno.taskflow_api.workspace.application.port.in.WorkspaceUseCase;
@@ -63,12 +64,7 @@ public class WorkspaceService implements WorkspaceUseCase {
   @Transactional
   public void deleteById(UUID id) {
     Workspace workspace = findById(id);
-    boolean isOwner = workspace.getUserId().equals(authenticatedUserProvider.getCurrentUserId());
-    boolean isAdmin = authenticatedUserProvider.currentUserIsAdmin();
-    if (!isOwner && !isAdmin) {
-      throw new AccessDeniedException(
-          "You are not the owner of this workspace and not an administrator.");
-    }
+    ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, workspace.getUserId());
     workspaceRepository.deleteById(id);
   }
 }

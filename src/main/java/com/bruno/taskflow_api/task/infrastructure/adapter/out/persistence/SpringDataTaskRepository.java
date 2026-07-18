@@ -10,11 +10,14 @@ import org.springframework.data.repository.query.Param;
 
 public interface SpringDataTaskRepository extends JpaRepository<TaskJpaEntity, UUID> {
 
-  List<TaskJpaEntity> findByStatus(TaskStatus status);
+  List<TaskJpaEntity> findByOwnerId(UUID ownerId);
 
-  List<TaskJpaEntity> findByTaskListId(UUID taskListId);
+  List<TaskJpaEntity> findByOwnerIdAndStatus(UUID ownerId, TaskStatus status);
 
-  List<TaskJpaEntity> findByStatusAndTaskListId(TaskStatus status, UUID taskListId);
+  List<TaskJpaEntity> findByOwnerIdAndTaskListId(UUID ownerId, UUID taskListId);
+
+  List<TaskJpaEntity> findByOwnerIdAndStatusAndTaskListId(UUID ownerId, TaskStatus status,
+      UUID taskListId);
 
   /*Funciona pero Hibernate primero hace consulta SELECT byTaskListId y elimina uno por uno
   void deleteAllByTaskListId(UUID taskListId);*/

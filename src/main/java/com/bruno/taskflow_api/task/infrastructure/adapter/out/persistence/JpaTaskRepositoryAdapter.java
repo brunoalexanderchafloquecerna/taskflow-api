@@ -30,18 +30,24 @@ public class JpaTaskRepositoryAdapter implements TaskRepository {
   }
 
   @Override
-  public List<Task> findTasksByFilters(UUID taskListId, TaskStatus status) {
+  public List<Task> findTasksByFilters(UUID currentUserId, UUID taskListId, TaskStatus status) {
     List<TaskJpaEntity> taskEntities;
     if (taskListId != null && status != null) {
-      taskEntities = springDataTaskRepository.findByStatusAndTaskListId(status, taskListId);
+      taskEntities = springDataTaskRepository.findByOwnerIdAndStatusAndTaskListId(currentUserId,
+          status, taskListId);
     } else if (taskListId != null) {
-      taskEntities = springDataTaskRepository.findByTaskListId(taskListId);
+      taskEntities = springDataTaskRepository.findByOwnerIdAndTaskListId(currentUserId, taskListId);
     } else if (status != null) {
-      taskEntities = springDataTaskRepository.findByStatus(status);
+      taskEntities = springDataTaskRepository.findByOwnerIdAndStatus(currentUserId, status);
     } else {
-      taskEntities = springDataTaskRepository.findAll();
+      taskEntities = springDataTaskRepository.findByOwnerId(currentUserId);
     }
     return taskEntities.stream().map(this::toDomain).toList();
+  }
+
+  @Override
+  public List<Task> findAllTasks() {
+    return springDataTaskRepository.findAll().stream().map(this::toDomain).toList();
   }
 
   @Override
@@ -56,12 +62,12 @@ public class JpaTaskRepositoryAdapter implements TaskRepository {
 
   private TaskJpaEntity toEntity(Task task) {
     return new TaskJpaEntity(task.getId(), task.getTitle(), task.getDescription(), task.getStatus(),
-        task.getTaskListId(), task.getCreatedAt(), task.getUpdatedAt());
+        task.getTaskListId(), task.getOwnerId(), task.getCreatedAt(), task.getUpdatedAt());
   }
 
   private Task toDomain(TaskJpaEntity taskJpaEntity) {
     return new Task(taskJpaEntity.getId(), taskJpaEntity.getTitle(), taskJpaEntity.getDescription(),
-        taskJpaEntity.getStatus(), taskJpaEntity.getTaskListId(), taskJpaEntity.getCreatedAt(),
-        taskJpaEntity.getUpdatedAt());
+        taskJpaEntity.getStatus(), taskJpaEntity.getTaskListId(), taskJpaEntity.getOwnerId(),
+        taskJpaEntity.getCreatedAt(), taskJpaEntity.getUpdatedAt());
   }
 }

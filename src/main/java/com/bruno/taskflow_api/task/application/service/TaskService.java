@@ -1,5 +1,7 @@
 package com.bruno.taskflow_api.task.application.service;
 
+import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
+import com.bruno.taskflow_api.shared.application.utils.ValidationUtils;
 import com.bruno.taskflow_api.task.application.exception.TaskListNotFoundException;
 import com.bruno.taskflow_api.task.application.exception.TaskNotFoundException;
 import com.bruno.taskflow_api.task.application.port.in.TaskUseCase;
@@ -9,6 +11,7 @@ import com.bruno.taskflow_api.task.domain.model.Task;
 import com.bruno.taskflow_api.task.domain.model.TaskStatus;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,16 +22,20 @@ public class TaskService implements TaskUseCase {
 
   private final TaskListGateway taskListGateway;
 
-  public TaskService(TaskRepository taskRepository, TaskListGateway taskListGateway) {
+  private final AuthenticatedUserProvider authenticatedUserProvider;
+
+  public TaskService(TaskRepository taskRepository, TaskListGateway taskListGateway,
+      AuthenticatedUserProvider authenticatedUserProvider) {
     this.taskRepository = taskRepository;
     this.taskListGateway = taskListGateway;
+    this.authenticatedUserProvider = authenticatedUserProvider;
   }
 
   @Override
   @Transactional
   public Task createTask(String title, String description, UUID taskListId) {
     this.checkIfTaskListExists(taskListId);
-    Task task = Task.create(title, description, taskListId);
+    Task task = Task.create(title, description, authenticatedUserProvider.getCurrentUserId(), taskListId);
     return taskRepository.save(task);
   }
 
@@ -36,6 +43,7 @@ public class TaskService implements TaskUseCase {
   @Transactional
   public Task changeTaskStatus(UUID id, TaskStatus status) {
     Task taskFound = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, taskFound.getOwnerId());
     taskFound.moveTo(status);
     return taskRepository.save(taskFound);
   }
@@ -45,6 +53,7 @@ public class TaskService implements TaskUseCase {
   public Task updateTaskInformation(UUID id, String title, String description, TaskStatus status,
       UUID taskListId) {
     Task taskFound = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
+    ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, taskFound.getOwnerId());
     checkIfTaskListExists(taskListId);
     taskFound.updateInformation(title, description, status, taskListId);
     return taskRepository.save(taskFound);
@@ -59,12 +68,25 @@ public class TaskService implements TaskUseCase {
   @Override
   @Transactional(readOnly = true)
   public List<Task> getTasksByFilters(UUID taskListId, TaskStatus status) {
-    return taskRepository.findTasksByFilters(taskListId, status);
+    UUID currentUserId = authenticatedUserProvider.getCurrentUserId();
+    return taskRepository.findTasksByFilters(currentUserId, taskListId, status);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<Task> getAllTasks() {
+    boolean isAdmin = authenticatedUserProvider.currentUserIsAdmin();
+    if (!isAdmin) {
+      throw new AccessDeniedException("Only admins can view all tasks");
+    }
+    return taskRepository.findAllTasks();
   }
 
   @Override
   @Transactional
   public void deleteTask(UUID id) {
+    Task taskFound = getTaskById(id);
+    ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, taskFound.getOwnerId());
     taskRepository.deleteById(id);
   }
 

@@ -54,6 +54,12 @@ public class TaskController {
         taskUseCase.getTasksByFilters(taskListId, status).stream().map(this::toResponse).toList());
   }
 
+  @GetMapping("/all")
+  public ResponseEntity<List<TaskResponse>> getAllTasks() {
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(taskUseCase.getAllTasks().stream().map(this::toResponse).toList());
+  }
+
   @PutMapping("/{id}")
   public ResponseEntity<TaskResponse> updateTask(@PathVariable UUID id,
       @Valid @RequestBody UpdateTaskRequest updateTaskRequest) {

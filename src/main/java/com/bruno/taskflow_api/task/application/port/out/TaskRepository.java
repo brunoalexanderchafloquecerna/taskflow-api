@@ -12,7 +12,9 @@ public interface TaskRepository {
 
   Optional<Task> findById(UUID id);
 
-  List<Task> findTasksByFilters(UUID taskListId, TaskStatus status);
+  List<Task> findTasksByFilters(UUID currentUserId, UUID taskListId, TaskStatus status);
+
+  List<Task> findAllTasks();
 
   void deleteById(UUID id);
 

@@ -34,6 +34,9 @@ public class TaskJpaEntity {
   @Column(name = "task_list_id", nullable = false)
   private UUID taskListId;
 
+  @Column(name = "owner_id", nullable = false)
+  private UUID ownerId;
+
   private LocalDateTime createdAt;
 
   private LocalDateTime updatedAt;
@@ -42,12 +45,13 @@ public class TaskJpaEntity {
   }
 
   public TaskJpaEntity(UUID id, String title, String description, TaskStatus status,
-      UUID taskListId, LocalDateTime createdAt, LocalDateTime updatedAt) {
+      UUID taskListId, UUID ownerId, LocalDateTime createdAt, LocalDateTime updatedAt) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.status = status;
     this.taskListId = taskListId;
+    this.ownerId = ownerId;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
