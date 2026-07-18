@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public class TaskListNotFoundException extends NotFoundException {
 
-  public TaskListNotFoundException(UUID id) {
-    super("Task List not found with ID: " + id);
+  public TaskListNotFoundException(UUID uuid) {
+    super("Task list with ID: " + uuid + " was not found.");
   }
 }

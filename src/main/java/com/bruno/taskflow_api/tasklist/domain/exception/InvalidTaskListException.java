@@ -1,6 +1,8 @@
 package com.bruno.taskflow_api.tasklist.domain.exception;
 
-public class InvalidTaskListException extends IllegalArgumentException {
+import com.bruno.taskflow_api.shared.domain.exception.DomainException;
+
+public class InvalidTaskListException extends DomainException {
 
   public InvalidTaskListException(String message) {
     super(message);

@@ -12,24 +12,26 @@ public class Task {
   private String description;
   private TaskStatus status;
   private UUID taskListId;
+  private final UUID ownerId;
   private LocalDateTime updatedAt;
   private final LocalDateTime createdAt;
 
   public Task(UUID id, String title, String description, TaskStatus status, UUID taskListId,
-      LocalDateTime createdAt, LocalDateTime updatedAt) {
+      UUID ownerId, LocalDateTime createdAt, LocalDateTime updatedAt) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.status = status;
     this.taskListId = taskListId;
+    this.ownerId = ownerId;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
 
-  public static Task create(String title, String description, UUID taskListId) {
+  public static Task create(String title, String description, UUID taskListId, UUID ownerId) {
     validaTitle(title);
     LocalDateTime now = LocalDateTime.now();
-    return new Task(null, title, description, TaskStatus.TODO, taskListId, now, now);
+    return new Task(null, title, description, TaskStatus.TODO, taskListId, ownerId, now, now);
   }
 
   private static void validaTitle(String title) {
@@ -82,6 +84,10 @@ public class Task {
 
   public UUID getTaskListId() {
     return taskListId;
+  }
+
+  public UUID getOwnerId() {
+    return ownerId;
   }
 
   public LocalDateTime getCreatedAt() {

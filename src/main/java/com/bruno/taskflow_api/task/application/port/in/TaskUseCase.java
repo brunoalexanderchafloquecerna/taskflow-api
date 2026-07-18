@@ -17,6 +17,8 @@ public interface TaskUseCase {
 
   List<Task> getTasksByFilters(UUID taskListId, TaskStatus status);
 
+  List<Task> getAllTasks();
+
   void deleteTask(UUID id);
 
   void deleteTasksByTaskListId(UUID taskListId);
