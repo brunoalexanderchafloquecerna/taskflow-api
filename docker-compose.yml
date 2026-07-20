@@ -12,5 +12,18 @@ services:
     volumes:
       - taskflow-postgres-data:/var/lib/postgresql/data
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7
+    container_name: taskflow-keycloak
+    command: start-dev
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - keycloak-data:/opt/keycloak/data
+    ports:
+      - "8081:8080"
+
 volumes:
   taskflow-postgres-data:
+  keycloak-data:

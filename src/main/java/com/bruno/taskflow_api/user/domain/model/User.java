@@ -7,46 +7,35 @@ public class User {
 
   private final UUID id;
   private String name;
-  private Role role;
   private String email;
-  private String password;
+  private String keycloakId;
 
-  public User(UUID id, String name, Role role, String email, String password) {
+  public User(UUID id, String name, String email, String keycloakId) {
     this.id = id;
-    this.email = email;
     this.name = name;
-    this.role = role;
-    this.password = password;
+    this.email = email;
+    this.keycloakId = keycloakId;
   }
 
-  public static User create(String name, Role role, String email, String password) {
+  public static User create(String name, String email, String keycloakId) {
     if (name == null || name.trim().isEmpty()) {
       throw new InvalidUserException("Name is required");
-    }
-    if (role == null) {
-      throw new InvalidUserException("Role is required");
     }
     if (email == null || email.trim().isEmpty()) {
       throw new InvalidUserException("Email is required");
     }
-    if (password == null || password.trim().isEmpty()) {
-      throw new InvalidUserException("Password is required");
+    if (keycloakId == null || keycloakId.trim().isEmpty()) {
+      throw new InvalidUserException("Keycloak ID is required");
     }
-    return new User(null, name, role, email, password);
+    return new User(null, name, email, keycloakId);
   }
 
-  public void updateInformation(String name, Role role, String email, String password) {
+  public void updateInformation(String name, String email) {
     if (name != null && !name.trim().isEmpty()) {
       this.name = name;
     }
-    if (role != null) {
-      this.role = role;
-    }
     if (email != null && !email.trim().isEmpty()) {
       this.email = email;
-    }
-    if (password != null && !password.trim().isEmpty()) {
-      this.password = password;
     }
   }
 
@@ -58,15 +47,19 @@ public class User {
     return name;
   }
 
-  public Role getRole() {
-    return role;
-  }
-
   public String getEmail() {
     return email;
   }
 
-  public String getPassword() {
-    return password;
+  public String getKeycloakId() {
+    return keycloakId;
+  }
+
+  public void updateEmail(String email) {
+    this.email = email;
+  }
+
+  public void updateName(String name) {
+    this.name = name;
   }
 }

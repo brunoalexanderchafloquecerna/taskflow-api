@@ -2,15 +2,12 @@ package com.bruno.taskflow_api.workspace.application.service;
 
 import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
 import com.bruno.taskflow_api.shared.application.utils.ValidationUtils;
-import com.bruno.taskflow_api.workspace.application.exception.UserNotFoundException;
 import com.bruno.taskflow_api.workspace.application.exception.WorkspaceNotFoundException;
 import com.bruno.taskflow_api.workspace.application.port.in.WorkspaceUseCase;
-import com.bruno.taskflow_api.workspace.application.port.out.UserGateway;
 import com.bruno.taskflow_api.workspace.application.port.out.WorkspaceRepository;
 import com.bruno.taskflow_api.workspace.domain.model.Workspace;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,21 +18,15 @@ public class WorkspaceService implements WorkspaceUseCase {
 
   private final AuthenticatedUserProvider authenticatedUserProvider;
 
-  private final UserGateway userGateway;
-
   public WorkspaceService(WorkspaceRepository workspaceRepository,
-      AuthenticatedUserProvider authenticatedUserProvider, UserGateway userGateway) {
+      AuthenticatedUserProvider authenticatedUserProvider) {
     this.workspaceRepository = workspaceRepository;
     this.authenticatedUserProvider = authenticatedUserProvider;
-    this.userGateway = userGateway;
   }
 
   @Override
   @Transactional
   public Workspace create(String name, UUID userId) {
-    if (!userGateway.userExistsById(userId)) {
-      throw new UserNotFoundException("User with id %s was not found".formatted(userId));
-    }
     return workspaceRepository.save(Workspace.create(name, userId));
   }
 
@@ -53,11 +44,22 @@ public class WorkspaceService implements WorkspaceUseCase {
   }
 
   @Override
+  @Transactional(readOnly = true)
+  public List<Workspace> findAllByUserId(UUID currentUserId) {
+    return workspaceRepository.findAllByUserId(currentUserId);
+  }
+
+  @Override
   @Transactional
   public Workspace updateName(UUID id, String name) {
     Workspace workspace = findById(id);
     workspace.updateName(name);
     return workspaceRepository.save(workspace);
+  }
+
+  @Override
+  public boolean existsByUserId(UUID userId) {
+    return workspaceRepository.existsByUserId(userId);
   }
 
   @Override
