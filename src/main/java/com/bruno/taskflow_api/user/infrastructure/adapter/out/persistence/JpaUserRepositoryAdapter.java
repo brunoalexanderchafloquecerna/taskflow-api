@@ -33,6 +33,11 @@ public class JpaUserRepositoryAdapter implements UserRepository {
   }
 
   @Override
+  public Optional<User> findByKeycloakId(String keycloakId) {
+    return springDataUserRepository.findByKeycloakId(keycloakId).map(this::toDomain);
+  }
+
+  @Override
   public List<User> findAll() {
     return springDataUserRepository.findAll().stream().map(this::toDomain).toList();
   }
@@ -40,6 +45,11 @@ public class JpaUserRepositoryAdapter implements UserRepository {
   @Override
   public boolean existsByEmail(String email) {
     return springDataUserRepository.existsByEmail(email);
+  }
+
+  @Override
+  public boolean existsByEmailAndKeycloakIdNot(String email, String keycloakId) {
+    return springDataUserRepository.existsByEmailAndKeycloakIdNot(email, keycloakId);
   }
 
   @Override
@@ -53,12 +63,11 @@ public class JpaUserRepositoryAdapter implements UserRepository {
   }
 
   private User toDomain(UserJpaEntity userJpaEntity) {
-    return new User(userJpaEntity.getId(), userJpaEntity.getName(), userJpaEntity.getRole(),
-        userJpaEntity.getEmail(), userJpaEntity.getPassword());
+    return new User(userJpaEntity.getId(), userJpaEntity.getName(), userJpaEntity.getEmail(),
+        userJpaEntity.getKeycloakId());
   }
 
   private UserJpaEntity toEntity(User user) {
-    return new UserJpaEntity(user.getId(), user.getName(), user.getRole(), user.getEmail(),
-        user.getPassword());
+    return new UserJpaEntity(user.getId(), user.getName(), user.getEmail(), user.getKeycloakId());
   }
 }

@@ -1,5 +1,6 @@
 package com.bruno.taskflow_api.workspace.infrastructure.adapter.in.web;
 
+import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
 import com.bruno.taskflow_api.workspace.application.port.in.WorkspaceUseCase;
 import com.bruno.taskflow_api.workspace.domain.model.Workspace;
 import com.bruno.taskflow_api.workspace.infrastructure.adapter.in.web.dto.request.CreateWorkspaceRequest;
@@ -26,22 +27,32 @@ public class WorkspaceController {
 
   private final WorkspaceUseCase workspaceUseCase;
 
-  public WorkspaceController(WorkspaceUseCase workspaceUseCase) {
+  private final AuthenticatedUserProvider authenticatedUserProvider;
+
+  public WorkspaceController(WorkspaceUseCase workspaceUseCase,
+      AuthenticatedUserProvider authenticatedUserProvider) {
     this.workspaceUseCase = workspaceUseCase;
+    this.authenticatedUserProvider = authenticatedUserProvider;
   }
 
   @PostMapping()
   public ResponseEntity<WorkspaceResponse> createWorkspace(
       @Valid @RequestBody CreateWorkspaceRequest createWorkspaceRequest) {
     Workspace workspace = workspaceUseCase.create(createWorkspaceRequest.name(),
-        createWorkspaceRequest.userId());
+        authenticatedUserProvider.getCurrentUserId());
     return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(workspace));
   }
 
-  @GetMapping()
+  @GetMapping("/all")
   @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<List<WorkspaceResponse>> findAllWorkspaces() {
     return ResponseEntity.ok(workspaceUseCase.findAll().stream().map(this::toResponse).toList());
+  }
+
+  @GetMapping()
+  public ResponseEntity<List<WorkspaceResponse>> findAllWorkspacesByUser() {
+    UUID currentUserId = authenticatedUserProvider.getCurrentUserId();
+    return ResponseEntity.ok(workspaceUseCase.findAllByUserId(currentUserId).stream().map(this::toResponse).toList());
   }
 
   @GetMapping("/{id}")

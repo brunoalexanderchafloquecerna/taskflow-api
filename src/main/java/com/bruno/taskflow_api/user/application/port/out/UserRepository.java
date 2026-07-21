@@ -13,9 +13,13 @@ public interface UserRepository {
 
   Optional<User> findByEmail(String email);
 
+  Optional<User> findByKeycloakId(String keycloakId);
+
   List<User> findAll();
   
   boolean existsByEmail(String email);
+
+  boolean existsByEmailAndKeycloakIdNot(String email, String keycloakId);
 
   void deleteById(UUID id);
 

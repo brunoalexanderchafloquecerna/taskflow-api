@@ -37,6 +37,17 @@ public class JpaWorkspaceAdapter implements WorkspaceRepository {
     springDataWorkspaceRepository.deleteById(id);
   }
 
+  @Override
+  public boolean existsByUserId(UUID userId) {
+    return springDataWorkspaceRepository.existsByUserId(userId);
+  }
+
+  @Override
+  public List<Workspace> findAllByUserId(UUID currentUserId) {
+    return springDataWorkspaceRepository.findAllByUserId(currentUserId).stream().map(this::toDomain)
+        .toList();
+  }
+
   private Workspace toDomain(WorkspaceJpaEntity workspaceJpaEntity) {
     return new Workspace(workspaceJpaEntity.getId(), workspaceJpaEntity.getName(),
         workspaceJpaEntity.getUserId());

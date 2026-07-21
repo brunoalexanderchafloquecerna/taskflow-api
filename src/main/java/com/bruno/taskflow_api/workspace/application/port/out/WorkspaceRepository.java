@@ -14,4 +14,8 @@ public interface WorkspaceRepository {
   List<Workspace> findAll();
 
   void deleteById(UUID id);
+
+  boolean existsByUserId(UUID userId);
+
+  List<Workspace> findAllByUserId(UUID currentUserId);
 }
