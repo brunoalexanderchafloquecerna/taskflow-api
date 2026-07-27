@@ -32,8 +32,8 @@ public class DynamoDbConfig {
         secretAccessKey);
     return DynamoDbClient.builder().endpointOverride(dynamodbEndpoint)
         .region(Region.of(dynamodbRegion))
-        .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials)).httpClient(
-            UrlConnectionHttpClient.create()).build();
+        .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
+        .httpClient(UrlConnectionHttpClient.create()).build();
   }
 
   @Bean
