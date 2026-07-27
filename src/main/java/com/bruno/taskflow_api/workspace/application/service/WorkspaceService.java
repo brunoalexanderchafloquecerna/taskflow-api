@@ -8,6 +8,10 @@ import com.bruno.taskflow_api.workspace.application.port.out.WorkspaceRepository
 import com.bruno.taskflow_api.workspace.domain.model.Workspace;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +20,8 @@ public class WorkspaceService implements WorkspaceUseCase {
 
   private final WorkspaceRepository workspaceRepository;
 
-  private final AuthenticatedUserProvider authenticatedUserProvider;
-
-  public WorkspaceService(WorkspaceRepository workspaceRepository,
-      AuthenticatedUserProvider authenticatedUserProvider) {
+  public WorkspaceService(WorkspaceRepository workspaceRepository) {
     this.workspaceRepository = workspaceRepository;
-    this.authenticatedUserProvider = authenticatedUserProvider;
   }
 
   @Override
@@ -31,8 +31,10 @@ public class WorkspaceService implements WorkspaceUseCase {
   }
 
   @Override
+  @Cacheable(value = "workspaces", key = "#id")
   @Transactional(readOnly = true)
   public Workspace findById(UUID id) {
+    System.out.println(">>> BUSCANDO EN BASE DE DATOS PARA ID: " + id);
     return workspaceRepository.findById(id).orElseThrow(
         () -> new WorkspaceNotFoundException("Workspace with id %s was not found".formatted(id)));
   }
@@ -44,13 +46,18 @@ public class WorkspaceService implements WorkspaceUseCase {
   }
 
   @Override
+  @Cacheable(value = "workspaces", key = "'all-for-user' + #currentUserId")
   @Transactional(readOnly = true)
   public List<Workspace> findAllByUserId(UUID currentUserId) {
+    System.out.println("<<< BUSCANDO WORKSPACES PARA USER ID: " + currentUserId + " EN LA DB >>>");
     return workspaceRepository.findAllByUserId(currentUserId);
   }
 
   @Override
   @Transactional
+  //@CachePut(value = "workspaces", key = "#id") => Usamos caching para actualiza el cache individual e invalidar el cache por ownerId
+  @Caching(put = {@CachePut(value = "workspaces", key = "#id")}, evict = {
+      @CacheEvict(value = "workspaces", key = "'all-for-user' + #result.ownerId")})
   public Workspace updateName(UUID id, String name) {
     Workspace workspace = findById(id);
     workspace.updateName(name);
@@ -64,9 +71,10 @@ public class WorkspaceService implements WorkspaceUseCase {
 
   @Override
   @Transactional
-  public void deleteById(UUID id) {
+  @CacheEvict(value = "workspaces", key = "#id")
+  public void deleteById(UUID id, AuthenticatedUserProvider authenticatedUserProvider) {
     Workspace workspace = findById(id);
-    ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, workspace.getUserId());
+    ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, workspace.getOwnerId());
     workspaceRepository.deleteById(id);
   }
 }

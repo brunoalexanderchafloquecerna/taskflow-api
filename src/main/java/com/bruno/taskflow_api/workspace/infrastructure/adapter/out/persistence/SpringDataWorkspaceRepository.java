@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SpringDataWorkspaceRepository extends JpaRepository<WorkspaceJpaEntity, UUID> {
 
-  boolean existsByUserId(UUID userId);
+  boolean existsByOwnerId(UUID ownerId);
 
-  List<WorkspaceJpaEntity> findAllByUserId(UUID userId);
-/*  @Query("SELECT w FROM Workspace w LEFT JOIN FETCH w.taskLists WHERE w.id = :id")
+  List<WorkspaceJpaEntity> findAllByOwnerId(UUID ownerId);
+
+  /*@Query("SELECT w FROM Workspace w LEFT JOIN FETCH w.taskLists WHERE w.id = :id")
   Optional<Workspace> findByIdWithTaskLists(@Param("id") UUID id);*/
 }

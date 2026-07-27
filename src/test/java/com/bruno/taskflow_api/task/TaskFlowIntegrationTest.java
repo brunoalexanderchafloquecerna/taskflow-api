@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-public class TaskFlowIntegrationTest extends BaseIntegrationTest {
+class TaskFlowIntegrationTest extends BaseIntegrationTest {
 
   @Autowired
   private TaskListRepository taskListRepositoryAdapter;
@@ -26,7 +26,7 @@ public class TaskFlowIntegrationTest extends BaseIntegrationTest {
 
   @BeforeEach
   void setUp() {
-    TaskList taskList = TaskList.create("Lista de prueba", UUID.randomUUID(), 0);
+    TaskList taskList = TaskList.create("Lista de prueba", UUID.randomUUID(), UUID.randomUUID(), 0);
     existingTaskListId = taskListRepositoryAdapter.save(taskList).getId();
   }
 
@@ -38,16 +38,11 @@ public class TaskFlowIntegrationTest extends BaseIntegrationTest {
         {"title": "Prueba end-to-end", "description": "desc", "taskListId": "%s"}
         """.formatted(existingTaskListId);
 
-    mockMvc.perform(post("/api/tasks")
-            .with(jwt().jwt(builder -> builder
-                .claim("sub", keycloakId)
-                .claim("email", "test@taskflow.com")
-                .claim("name", "Test User")
-                .claim("realm_access", Map.of("roles", List.of("USER")))
-            ).authorities(new SimpleGrantedAuthority("ROLE_USER")))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(requestBody))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.title").value("Prueba end-to-end"));
+    mockMvc.perform(post("/api/tasks").with(jwt().jwt(
+                    builder -> builder.claim("sub", keycloakId).claim("email", "test@taskflow.com")
+                        .claim("name", "Test User").claim("realm_access", Map.of("roles", List.of("USER"))))
+                .authorities(new SimpleGrantedAuthority("ROLE_USER")))
+            .contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        .andExpect(status().isCreated()).andExpect(jsonPath("$.title").value("Prueba end-to-end"));
   }
 }

@@ -5,12 +5,17 @@ import com.bruno.taskflow_api.shared.application.utils.ValidationUtils;
 import com.bruno.taskflow_api.task.application.exception.TaskListNotFoundException;
 import com.bruno.taskflow_api.task.application.exception.TaskNotFoundException;
 import com.bruno.taskflow_api.task.application.port.in.TaskUseCase;
+import com.bruno.taskflow_api.task.application.port.out.ActivityLogPort;
 import com.bruno.taskflow_api.task.application.port.out.TaskListGateway;
 import com.bruno.taskflow_api.task.application.port.out.TaskRepository;
+import com.bruno.taskflow_api.task.domain.model.ActivityEvent;
 import com.bruno.taskflow_api.task.domain.model.Task;
 import com.bruno.taskflow_api.task.domain.model.TaskStatus;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,16 +23,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class TaskService implements TaskUseCase {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TaskService.class);
   private final TaskRepository taskRepository;
-
   private final TaskListGateway taskListGateway;
-
+  private final ActivityLogPort activityLogPort;
   private final AuthenticatedUserProvider authenticatedUserProvider;
 
   public TaskService(TaskRepository taskRepository, TaskListGateway taskListGateway,
-      AuthenticatedUserProvider authenticatedUserProvider) {
+      ActivityLogPort activityLogPort, AuthenticatedUserProvider authenticatedUserProvider) {
     this.taskRepository = taskRepository;
     this.taskListGateway = taskListGateway;
+    this.activityLogPort = activityLogPort;
     this.authenticatedUserProvider = authenticatedUserProvider;
   }
 
@@ -35,8 +41,17 @@ public class TaskService implements TaskUseCase {
   @Transactional
   public Task createTask(String title, String description, UUID taskListId) {
     this.checkIfTaskListExists(taskListId);
-    Task task = Task.create(title, description, authenticatedUserProvider.getCurrentUserId(), taskListId);
-    return taskRepository.save(task);
+    UUID currentUserId = authenticatedUserProvider.getCurrentUserId();
+    Task task = taskRepository.save(Task.create(title, description, taskListId, currentUserId));
+    try {
+      activityLogPort.record(
+          new ActivityEvent(task.getId().toString(), "TASK_CREATED", currentUserId.toString(),
+              task.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant(), "{}"));
+    } catch (Exception e) {
+      LOGGER.error("The activity could not be recorded for the task {}: {}", task.getId(),
+          e.getMessage());
+    }
+    return task;
   }
 
   @Override
@@ -45,7 +60,17 @@ public class TaskService implements TaskUseCase {
     Task taskFound = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException(id));
     ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, taskFound.getOwnerId());
     taskFound.moveTo(status);
-    return taskRepository.save(taskFound);
+    Task task = taskRepository.save(taskFound);
+    try {
+      activityLogPort.record(new ActivityEvent(task.getId().toString(), "TASK_CHANGED_STATUS",
+          authenticatedUserProvider.getCurrentUserId().toString(),
+          task.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant(), "{}"));
+    } catch (Exception e) {
+      LOGGER.error("The activity could not be recorded for the task {}: {}", task.getId(),
+          e.getMessage());
+    }
+
+    return task;
   }
 
   @Override
@@ -56,7 +81,16 @@ public class TaskService implements TaskUseCase {
     ValidationUtils.isOwnerOrAdmin(authenticatedUserProvider, taskFound.getOwnerId());
     checkIfTaskListExists(taskListId);
     taskFound.updateInformation(title, description, status, taskListId);
-    return taskRepository.save(taskFound);
+    Task task = taskRepository.save(taskFound);
+    try {
+      activityLogPort.record(new ActivityEvent(task.getId().toString(), "TASK_UPDATED",
+          authenticatedUserProvider.getCurrentUserId().toString(),
+          task.getUpdatedAt().atZone(ZoneId.systemDefault()).toInstant(), "{}"));
+    } catch (Exception e) {
+      LOGGER.error("The activity could not be recorded for the task {}: {}", task.getId(),
+          e.getMessage());
+    }
+    return task;
   }
 
   @Override

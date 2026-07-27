@@ -39,21 +39,21 @@ public class JpaWorkspaceAdapter implements WorkspaceRepository {
 
   @Override
   public boolean existsByUserId(UUID userId) {
-    return springDataWorkspaceRepository.existsByUserId(userId);
+    return springDataWorkspaceRepository.existsByOwnerId(userId);
   }
 
   @Override
   public List<Workspace> findAllByUserId(UUID currentUserId) {
-    return springDataWorkspaceRepository.findAllByUserId(currentUserId).stream().map(this::toDomain)
+    return springDataWorkspaceRepository.findAllByOwnerId(currentUserId).stream().map(this::toDomain)
         .toList();
   }
 
   private Workspace toDomain(WorkspaceJpaEntity workspaceJpaEntity) {
     return new Workspace(workspaceJpaEntity.getId(), workspaceJpaEntity.getName(),
-        workspaceJpaEntity.getUserId());
+        workspaceJpaEntity.getOwnerId());
   }
 
   private WorkspaceJpaEntity toEntity(Workspace workspace) {
-    return new WorkspaceJpaEntity(workspace.getId(), workspace.getName(), workspace.getUserId());
+    return new WorkspaceJpaEntity(workspace.getId(), workspace.getName(), workspace.getOwnerId());
   }
 }

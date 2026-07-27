@@ -26,7 +26,7 @@ public class UserJpaEntity {
   @Column(nullable = false, unique = true)
   private String email;
 
-  @Column(nullable = false)
+  @Column(nullable = false, unique = true)
   private String keycloakId;
 
   protected UserJpaEntity() {

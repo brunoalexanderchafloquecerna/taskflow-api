@@ -1,9 +1,14 @@
 package com.bruno.taskflow_api.user.domain.model;
 
 import com.bruno.taskflow_api.user.domain.exception.InvalidUserException;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+public class User implements Serializable {
+
+  @Serial
+  private static final long serialVersionUID = 7641748917251197118L;
 
   private final UUID id;
   private String name;

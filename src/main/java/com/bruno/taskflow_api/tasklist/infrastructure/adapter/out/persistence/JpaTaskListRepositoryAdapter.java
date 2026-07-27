@@ -50,11 +50,12 @@ public class JpaTaskListRepositoryAdapter implements TaskListRepository {
 
   private TaskListJpaEntity toEntity(TaskList taskList) {
     return new TaskListJpaEntity(taskList.getId(), taskList.getName(), taskList.getWorkspaceId(),
-        taskList.getPosition());
+        taskList.getOwnerId(), taskList.getPosition());
   }
 
   private TaskList toDomain(TaskListJpaEntity taskListJpaEntity) {
     return new TaskList(taskListJpaEntity.getId(), taskListJpaEntity.getName(),
-        taskListJpaEntity.getWorkspaceId(), taskListJpaEntity.getPosition());
+        taskListJpaEntity.getWorkspaceId(), taskListJpaEntity.getOwnerId(),
+        taskListJpaEntity.getPosition());
   }
 }

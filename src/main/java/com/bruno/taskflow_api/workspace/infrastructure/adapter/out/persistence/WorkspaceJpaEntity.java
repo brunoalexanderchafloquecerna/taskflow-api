@@ -22,15 +22,15 @@ public class WorkspaceJpaEntity {
 
   private String name;
 
-  @Column(name = "user_id", nullable = false)
-  private UUID userId;
+  @Column(name = "owner_id", nullable = false)
+  private UUID ownerId;
 
   protected WorkspaceJpaEntity() {
   }
 
-  public WorkspaceJpaEntity(UUID id, String name, UUID userId) {
+  public WorkspaceJpaEntity(UUID id, String name, UUID ownerId) {
     this.id = id;
     this.name = name;
-    this.userId = userId;
+    this.ownerId = ownerId;
   }
 }
