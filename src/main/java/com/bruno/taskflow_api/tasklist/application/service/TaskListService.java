@@ -1,5 +1,6 @@
 package com.bruno.taskflow_api.tasklist.application.service;
 
+import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
 import com.bruno.taskflow_api.tasklist.application.exception.TaskListNotFoundException;
 import com.bruno.taskflow_api.tasklist.application.port.in.TaskListUseCase;
 import com.bruno.taskflow_api.tasklist.application.port.out.TaskListRepository;
@@ -14,14 +15,19 @@ public class TaskListService implements TaskListUseCase {
 
   private final TaskListRepository taskListRepository;
 
-  public TaskListService(TaskListRepository taskListRepository) {
+  private final AuthenticatedUserProvider authenticatedUserProvider;
+
+  public TaskListService(TaskListRepository taskListRepository,
+      AuthenticatedUserProvider authenticatedUserProvider) {
     this.taskListRepository = taskListRepository;
+    this.authenticatedUserProvider = authenticatedUserProvider;
   }
 
   @Override
   @Transactional
   public TaskList createTaskList(String name, UUID workspaceId, int position) {
-    return taskListRepository.save(TaskList.create(name, workspaceId, position));
+    return taskListRepository.save(
+        TaskList.create(name, workspaceId, authenticatedUserProvider.getCurrentUserId(), position));
   }
 
   @Override

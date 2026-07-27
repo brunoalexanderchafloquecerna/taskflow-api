@@ -1,0 +1,19 @@
+#!/bin/bash
+# docker/localstack-init/init-dynamodb.sh
+
+if awslocal dynamodb describe-table --table-name TaskflowEvents --region us-east-1 >/dev/null 2>&1; then
+  echo "Tabla TaskflowEvents ya existe, omitiendo creación"
+else
+  echo "Creando tabla TaskflowEvents..."
+  awslocal dynamodb create-table \
+    --table-name TaskflowEvents \
+    --attribute-definitions \
+      AttributeName=pk,AttributeType=S \
+      AttributeName=sk,AttributeType=S \
+    --key-schema \
+      AttributeName=pk,KeyType=HASH \
+      AttributeName=sk,KeyType=RANGE \
+    --billing-mode PAY_PER_REQUEST \
+    --region us-east-1
+  echo "Tabla TaskflowEvents creada"
+fi

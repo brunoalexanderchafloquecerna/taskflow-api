@@ -52,7 +52,8 @@ public class WorkspaceController {
   @GetMapping()
   public ResponseEntity<List<WorkspaceResponse>> findAllWorkspacesByUser() {
     UUID currentUserId = authenticatedUserProvider.getCurrentUserId();
-    return ResponseEntity.ok(workspaceUseCase.findAllByUserId(currentUserId).stream().map(this::toResponse).toList());
+    return ResponseEntity.ok(
+        workspaceUseCase.findAllByUserId(currentUserId).stream().map(this::toResponse).toList());
   }
 
   @GetMapping("/{id}")
@@ -70,11 +71,11 @@ public class WorkspaceController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteWorkspaceById(@PathVariable UUID id) {
-    workspaceUseCase.deleteById(id);
+    workspaceUseCase.deleteById(id, authenticatedUserProvider);
     return ResponseEntity.noContent().build();
   }
 
   private WorkspaceResponse toResponse(Workspace workspace) {
-    return new WorkspaceResponse(workspace.getId(), workspace.getName(), workspace.getUserId());
+    return new WorkspaceResponse(workspace.getId(), workspace.getName(), workspace.getOwnerId());
   }
 }

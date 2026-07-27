@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: taskflow-api
+
+  #CONNECTION TO POSTGRESQL
+  datasource:
+    url: ${DATA_SOURCE_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  #JPA AND HIBERNATE
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  #FLYWAY
+  flyway:
+    enabled: true
+    #locations: classpath:/db/migration
+
+  #REDIS
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+
+  #OAUTH2
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}
+
+#KEYCLOAK
+keycloak:
+  base-url: ${KEYCLOAK_BASE_URL}
+  realm: ${KEYCLOAK_REALM}
+  admin:
+    client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
+    client-secret: ${KEYCLOAK_ADMIN_SECRET}
+
+#AWS FOR DYNAMODB
+aws:
+  dynamodb:
+    endpoint: ${AWS_DYNAMODB_ENDPOINT}
+    region: ${AWS_DYNAMODB_REGION:us-east-1}
+    access-key-id: ${AWS_DYNAMODB_ACCESS_KEY_ID}
+    secret-access-key: ${AWS_DYNAMODB_SECRET_ACCESS_KEY}
+    table-name: ${AWS_DYNAMODB_TABLE_NAME:TaskflowEvents}
+
+#JWT MANUAL
+#jwt.secret=${JWT_SECRET:una-clave-larga-y-aleatoria-solo-para-desarrollo}
+#jwt.expiration=86400000

@@ -8,23 +8,25 @@ public class TaskList {
   private final UUID id;
   private String name;
   private UUID workspaceId;
+  private final UUID ownerId;
   private int position;
 
-  public TaskList(UUID id, String name, UUID workspaceId, int position) {
+  public TaskList(UUID id, String name, UUID workspaceId, UUID ownerId, int position) {
     this.id = id;
     this.name = name;
     this.workspaceId = workspaceId;
+    this.ownerId = ownerId;
     this.position = position;
   }
 
-  public static TaskList create(String name, UUID workspaceId, int position) {
+  public static TaskList create(String name, UUID workspaceId, UUID ownerId, int position) {
     if (name == null || name.isEmpty()) {
       throw new InvalidTaskListException("The TaskList name cannot be empty");
     }
-    return new TaskList(null, name, workspaceId, position);
+    return new TaskList(null, name, workspaceId, ownerId, position);
   }
 
-  public void updateInformation(String name,UUID workspaceId, int position) {
+  public void updateInformation(String name, UUID workspaceId, int position) {
     if (this.name != null) {
       this.name = name;
     }
@@ -48,5 +50,9 @@ public class TaskList {
 
   public int getPosition() {
     return position;
+  }
+
+  public UUID getOwnerId() {
+    return ownerId;
   }
 }

@@ -6,6 +6,7 @@ import com.bruno.taskflow_api.user.domain.model.User;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class UserSyncService implements UserSyncUseCase {
 
   @Override
   @Transactional
+  @Cacheable(value = "user", key = "'for-keycloak-id-' + #keycloakId")
   public User syncFromIdentityProvider(String keycloakId, String email, String name) {
     Optional<User> user = userRepository.findByKeycloakId(keycloakId);
     if (user.isEmpty()) {

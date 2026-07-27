@@ -33,6 +33,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
   }
 
   @Override
+  //@Cacheable(value = "user", key = "'for-keycloak-id-' + #keycloakId")
   public Optional<User> findByKeycloakId(String keycloakId) {
     return springDataUserRepository.findByKeycloakId(keycloakId).map(this::toDomain);
   }

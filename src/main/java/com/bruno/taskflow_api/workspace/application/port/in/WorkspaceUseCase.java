@@ -1,5 +1,6 @@
 package com.bruno.taskflow_api.workspace.application.port.in;
 
+import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
 import com.bruno.taskflow_api.workspace.domain.model.Workspace;
 import java.util.List;
 import java.util.Optional;
@@ -19,5 +20,5 @@ public interface WorkspaceUseCase {
 
   boolean existsByUserId(UUID userId);
 
-  void deleteById(UUID id);
+  void deleteById(UUID id, AuthenticatedUserProvider authenticatedUserProvider);
 }
