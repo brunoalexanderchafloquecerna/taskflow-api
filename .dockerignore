@@ -1,0 +1,40 @@
+# Git and VCS
+.git
+.gitignore
+.gitattributes
+.github/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# Build and local artifacts
+.gradle/
+build/
+out/
+target/
+*.log
+*.tmp
+*.pid
+*.class
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local runtime data
+.tmp/
+tmp/
