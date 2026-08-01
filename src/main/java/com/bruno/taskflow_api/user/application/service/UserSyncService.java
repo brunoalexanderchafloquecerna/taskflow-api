@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -23,6 +24,10 @@ public class UserSyncService implements UserSyncUseCase {
   }
 
   @Override
+  //@Transactional(propagation = Propagation.REQUIRES_NEW)
+  //Para sincronizar el nuevo usuario incluso desde @Transactional(readOnly = true)
+  //Buscar otras opciones, como un metodo JIT mediante SpringSecurity, Eventos de keycloak para llamar a un endpoint del back
+  //Endpoint explicito iniciado por el frontend
   @Transactional
   @Cacheable(value = "user", key = "'for-keycloak-id-' + #keycloakId")
   public User syncFromIdentityProvider(String keycloakId, String email, String name) {
