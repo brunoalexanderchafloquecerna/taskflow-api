@@ -40,6 +40,19 @@ spring:
         jwt:
           issuer-uri: ${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}
 
+  #KAFKA
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9094}
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest #latest para produccion con earliest vamos a reprocesar todo para pruebas
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 #KEYCLOAK
 keycloak:
   base-url: ${KEYCLOAK_BASE_URL}
@@ -60,3 +73,20 @@ aws:
 #JWT MANUAL
 #jwt.secret=${JWT_SECRET:una-clave-larga-y-aleatoria-solo-para-desarrollo}
 #jwt.expiration=86400000
+
+#RESILIENCE
+resilience4j:
+  circuitbreaker:
+    instances:
+      kafkaPublisher:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 1
+      notificationRepository:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 1

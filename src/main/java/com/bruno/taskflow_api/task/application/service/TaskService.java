@@ -2,16 +2,18 @@ package com.bruno.taskflow_api.task.application.service;
 
 import com.bruno.taskflow_api.shared.application.port.out.AuthenticatedUserProvider;
 import com.bruno.taskflow_api.shared.application.utils.ValidationUtils;
+import com.bruno.taskflow_api.task.application.event.TaskCompletedIntegrationEvent;
 import com.bruno.taskflow_api.task.application.exception.TaskListNotFoundException;
 import com.bruno.taskflow_api.task.application.exception.TaskNotFoundException;
 import com.bruno.taskflow_api.task.application.port.in.TaskUseCase;
 import com.bruno.taskflow_api.task.application.port.out.ActivityLogPort;
-import com.bruno.taskflow_api.task.application.port.out.NotifierGateway;
+import com.bruno.taskflow_api.task.application.port.out.TaskEventPublisher;
 import com.bruno.taskflow_api.task.application.port.out.TaskListGateway;
 import com.bruno.taskflow_api.task.application.port.out.TaskRepository;
 import com.bruno.taskflow_api.task.domain.model.ActivityEvent;
 import com.bruno.taskflow_api.task.domain.model.Task;
 import com.bruno.taskflow_api.task.domain.model.TaskStatus;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
@@ -29,16 +31,16 @@ public class TaskService implements TaskUseCase {
   private final TaskListGateway taskListGateway;
   private final ActivityLogPort activityLogPort;
   private final AuthenticatedUserProvider authenticatedUserProvider;
-  private final NotifierGateway notifierGateway;
+  private final TaskEventPublisher taskEventPublisher;
 
   public TaskService(TaskRepository taskRepository, TaskListGateway taskListGateway,
       ActivityLogPort activityLogPort, AuthenticatedUserProvider authenticatedUserProvider,
-      NotifierGateway notifierGateway) {
+      TaskEventPublisher taskEventPublisher) {
     this.taskRepository = taskRepository;
     this.taskListGateway = taskListGateway;
     this.activityLogPort = activityLogPort;
     this.authenticatedUserProvider = authenticatedUserProvider;
-    this.notifierGateway = notifierGateway;
+    this.taskEventPublisher = taskEventPublisher;
   }
 
   @Override
@@ -74,13 +76,9 @@ public class TaskService implements TaskUseCase {
           e.getMessage());
     }
     if (status == TaskStatus.DONE) {
-      try {
-        notifierGateway.notifyTaskCompleted(task.getId().toString(), task.getOwnerId().toString(),
-            authenticatedUserProvider.getCurrentUserId().toString());
-      } catch (Exception e) {
-        LOGGER.error("The notification could not be recorded for the task {}: {}", task.getId(),
-            e.getMessage());
-      }
+      taskEventPublisher.publishTaskCompleted(
+          new TaskCompletedIntegrationEvent(task.getId(), task.getTaskListId(), task.getOwnerId(),
+              authenticatedUserProvider.getCurrentUserId(), Instant.now()));
     }
     return task;
   }
