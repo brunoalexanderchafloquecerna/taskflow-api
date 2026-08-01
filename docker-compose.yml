@@ -25,6 +25,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HEALTH_ENABLED: "true"
+      #KC_HOSTNAME: http://keycloak:8080 #Fija el el hostname que keycloak anuncia en iss
     volumes:
       - keycloak-data:/opt/keycloak/data
       - ./docker/keycloak-import:/opt/keycloak/data/import:ro
