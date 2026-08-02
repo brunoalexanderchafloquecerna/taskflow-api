@@ -25,7 +25,7 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
       KC_HEALTH_ENABLED: "true"
-      #KC_HOSTNAME: http://keycloak:8080 #Fija el el hostname que keycloak anuncia en iss
+      KC_HOSTNAME: http://keycloak:8080 #Fija el el hostname que keycloak anuncia en iss
     volumes:
       - keycloak-data:/opt/keycloak/data
       - ./docker/keycloak-import:/opt/keycloak/data/import:ro
@@ -95,6 +95,36 @@ services:
       retries: 10
       start_period: 30s
 
+  app:
+    build: .
+    container_name: taskflow-api
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      DATA_SOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KEYCLOAK_BASE_URL: http://keycloak:8080
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_ADMIN_CLIENT_ID: ${KEYCLOAK_ADMIN_CLIENT_ID}
+      KEYCLOAK_ADMIN_SECRET: ${KEYCLOAK_ADMIN_SECRET}
+      AWS_DYNAMODB_ENDPOINT: http://localstack:4566
+      AWS_DYNAMODB_REGION: ${AWS_DYNAMODB_REGION:-us-east-1}
+      AWS_DYNAMODB_ACCESS_KEY_ID: ${AWS_DYNAMODB_ACCESS_KEY_ID}
+      AWS_DYNAMODB_SECRET_ACCESS_KEY: ${AWS_DYNAMODB_SECRET_ACCESS_KEY}
+      AWS_DYNAMODB_TABLE_NAME: ${AWS_DYNAMODB_TABLE_NAME:-TaskflowEvents}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
 volumes:
   taskflow-postgres-data:
   keycloak-data:
