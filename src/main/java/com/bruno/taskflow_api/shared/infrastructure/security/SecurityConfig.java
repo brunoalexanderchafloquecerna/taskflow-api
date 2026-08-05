@@ -21,8 +21,10 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             auth -> auth
-                .requestMatchers("/api/users/register").permitAll()
-                .requestMatchers("/actuator/health/**").permitAll()
+                .requestMatchers(
+                    "/api/users/register",
+                    "/actuator/health/**",
+                    "/actuator/prometheus" ).permitAll()
                 .anyRequest().authenticated())
         .oauth2ResourceServer(oauth2 -> oauth2
             .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
