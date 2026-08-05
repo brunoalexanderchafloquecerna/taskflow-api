@@ -22,3 +22,6 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew test --no-daemon
+
+      #- name: Run integration tests
+      #  run: ./gradlew integrationTest --no-daemon
